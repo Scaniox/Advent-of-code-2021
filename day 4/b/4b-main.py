@@ -15,11 +15,11 @@ def string_to_arr(arr_string):
 blocks = (Path(__file__).parent.parent / "4-input.txt").read_text().split("\n\n")
 random_no = list(map(int, blocks[0].split(",")))
 
-boards = list(map(string_to_arr,blocks[1:]))
-
+usable_boards = list(map(string_to_arr,blocks[1:]))
+usable_boards_buffer = []
 
 for drawn_no in random_no:
-    for board_index, board in enumerate(boards):
+    for board_index, board in enumerate(usable_boards):
         # mark number
         board[1] += board[0] == drawn_no # mark numbers matching
 
@@ -30,8 +30,13 @@ for drawn_no in random_no:
         win |= bool(max(board[1].cumprod(axis=1)[:,-1]))
 
         if win:
-            unmarked_only = (board[1] == 0) * board[0]
-            score = drawn_no * np_sum(unmarked_only)
+            if len(usable_boards) == 1:
+                unmarked_only = (board[1] == 0) * board[0]
+                score = drawn_no * np_sum(unmarked_only)
+                print(int(score))
+                quit()
+        else:
+            usable_boards_buffer.append(board)
 
-            print(int(score))
-            quit()
+    usable_boards = usable_boards_buffer
+    usable_boards_buffer = []
