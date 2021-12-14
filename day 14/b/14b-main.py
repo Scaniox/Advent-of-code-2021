@@ -3,23 +3,17 @@ import re
 from collections import Counter, defaultdict
 import time
 
-file_text = (Path(__file__).parent.parent / "14-test.txt").read_text()
+file_text = (Path(__file__).parent.parent / "14-input.txt").read_text()
 template = re.match("([A-Z]+)\n", file_text).groups()[0]
-rules = re.findall("([A-Z])([A-Z]) -> ([A-Z])", file_text)
-rules = {(r[0], r[1]): r[2] for r in rules}
+rules = re.findall("([A-Z][A-Z]) -> ([A-Z])", file_text)
+rules = {r[0]: r[1] for r in rules}
 
 # convert template into pairs, storing them in pairs table
 pairs_counts = defaultdict(int)
-item2 = template[0]
-for next_item in template:
-    item1 = item2
-    item2 = next_item
-    pairs_counts[item1+item2] += 1
+for i in range(len(template)-1):
+    pairs_counts[template[i]+template[i+1]] += 1
 
-
-for step in range(40):
-    t1 = time.time()
-
+for step in range(100000):
     pairs_counts_buff = pairs_counts.copy()
     for pair, pair_count in pairs_counts.items():
         new_char = rules[pair]
@@ -30,15 +24,23 @@ for step in range(40):
     pairs_counts = pairs_counts_buff
 
 
-    print(f"step {step} took: {time.time() - t1}")
+# count characters in pairs
+character_counts = defaultdict(int)
+for pair, count in pairs_counts.items():
+    character_counts[pair[0]] += count
+    character_counts[pair[1]] += count
 
-start_c = template[0]
-end_c = template[len(template)]
-for c in [start_c, end_c]:
-    pair_counts[c] -= 1
+minimum = 9* 10**99
+maximum = 0
 
-for pair in pairs_counts
-    pairs_counts[pair] /= 2
+# some character are double counted
+for char, count in character_counts.items():
+    if char in [template[0], template[-1]]:
+        ans = ((count-1)//2) + 1
+    else:
+        ans = count//2
 
-for c in [start_c, end_c]:
-    pair_counts[c] += 1
+    minimum = min(minimum, ans)
+    maximum = max(maximum, ans)
+
+print(int(maximum-minimum))
